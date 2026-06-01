@@ -1,11 +1,21 @@
 ---
 openapi: 3.1.0
 info:
-  title: OpenAPI definition
-  version: v0
+  title: HYEnd API
+  description: |
+    HYEnd 웹사이트 백엔드 REST API 명세서
+
+    ## 인증 방법
+    1. `/api/auth/login` 으로 로그인하여 `accessToken` 발급
+    2. 우측 상단 **Authorize** 버튼 클릭 후 토큰 입력
+    3. 이후 인증이 필요한 API에 Bearer 토큰 자동 포함
+  contact:
+    name: HYEnd Team
+    email: jwmoon@hanyang.ac.kr
+  version: v1.0.0
 servers:
 - url: http://localhost:8080
-  description: Generated server url
+  description: 로컬 개발 서버
 tags:
 - name: Announcements
   description: 공지사항 API
@@ -14,6 +24,138 @@ tags:
 - name: Auth
   description: 인증 API
 paths:
+  "/api/inquiries/{inquiryId}":
+    get:
+      tags:
+      - inquiry-controller
+      operationId: getInquiry
+      parameters:
+      - name: inquiryId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: requesterId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/InquiryResponse"
+    put:
+      tags:
+      - inquiry-controller
+      operationId: updateInquiry
+      parameters:
+      - name: inquiryId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: requesterId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/InquiryRequest"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/InquiryResponse"
+    delete:
+      tags:
+      - inquiry-controller
+      operationId: deleteInquiry
+      parameters:
+      - name: inquiryId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: requesterId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+  "/api/events/{id}":
+    get:
+      tags:
+      - event-controller
+      operationId: getEvent
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/EventResponse"
+    put:
+      tags:
+      - event-controller
+      operationId: updateEvent
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/EventRequest"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/EventResponse"
+    delete:
+      tags:
+      - event-controller
+      operationId: deleteEvent
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
   "/api/announcements/{id}":
     get:
       tags:
@@ -59,6 +201,8 @@ paths:
             "*/*":
               schema:
                 "$ref": "#/components/schemas/ApiResponseAnnouncementResponse"
+      security:
+      - bearerAuth: []
     delete:
       tags:
       - Announcements
@@ -78,6 +222,8 @@ paths:
             "*/*":
               schema:
                 "$ref": "#/components/schemas/ApiResponseVoid"
+      security:
+      - bearerAuth: []
   "/api/announcements/{id}/unpin":
     put:
       tags:
@@ -98,6 +244,8 @@ paths:
             "*/*":
               schema:
                 "$ref": "#/components/schemas/ApiResponseVoid"
+      security:
+      - bearerAuth: []
   "/api/announcements/{id}/pin":
     put:
       tags:
@@ -118,6 +266,90 @@ paths:
             "*/*":
               schema:
                 "$ref": "#/components/schemas/ApiResponseVoid"
+      security:
+      - bearerAuth: []
+  "/api/inquiries":
+    post:
+      tags:
+      - inquiry-controller
+      operationId: createInquiry
+      parameters:
+      - name: authorId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/InquiryRequest"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/InquiryResponse"
+  "/api/inquiries/{inquiryId}/replies":
+    get:
+      tags:
+      - inquiry-controller
+      operationId: getReplies
+      parameters:
+      - name: inquiryId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: requesterId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/ReplyResponse"
+    post:
+      tags:
+      - inquiry-controller
+      operationId: createReply
+      parameters:
+      - name: inquiryId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: authorId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/ReplyRequest"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/ReplyResponse"
   "/api/files":
     post:
       tags:
@@ -144,6 +376,110 @@ paths:
             "*/*":
               schema:
                 "$ref": "#/components/schemas/ApiResponseListFileResponse"
+      security:
+      - bearerAuth: []
+  "/api/events":
+    get:
+      tags:
+      - event-controller
+      operationId: getAllEvents
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/EventResponse"
+    post:
+      tags:
+      - event-controller
+      operationId: createEvent
+      parameters:
+      - name: userId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/EventRequest"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/EventResponse"
+  "/api/categories":
+    get:
+      tags:
+      - category-controller
+      operationId: getAllCategories
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/CategoryResponse"
+    post:
+      tags:
+      - category-controller
+      operationId: createCategory
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/CategoryRequest"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/CategoryResponse"
+  "/api/books/return/{rentalId}":
+    post:
+      tags:
+      - book-controller
+      operationId: returnBook
+      parameters:
+      - name: rentalId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+  "/api/books/rent":
+    post:
+      tags:
+      - book-controller
+      operationId: rentBook
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/RentRequest"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/RentalResponse"
   "/api/auth/register":
     post:
       tags:
@@ -195,6 +531,8 @@ paths:
             "*/*":
               schema:
                 "$ref": "#/components/schemas/ApiResponseVoid"
+      security:
+      - bearerAuth: []
   "/api/auth/login":
     post:
       tags:
@@ -262,6 +600,58 @@ paths:
             "*/*":
               schema:
                 "$ref": "#/components/schemas/ApiResponseAnnouncementResponse"
+      security:
+      - bearerAuth: []
+  "/api/inquiries/{inquiryId}/close":
+    patch:
+      tags:
+      - inquiry-controller
+      operationId: closeInquiry
+      parameters:
+      - name: inquiryId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+  "/api/inquiries/me":
+    get:
+      tags:
+      - inquiry-controller
+      operationId: getMyInquiries
+      parameters:
+      - name: userId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/InquiryResponse"
   "/api/files/{filename}":
     get:
       tags:
@@ -282,6 +672,76 @@ paths:
               schema:
                 type: string
                 format: binary
+  "/api/categories/{name}":
+    get:
+      tags:
+      - category-controller
+      operationId: getCategoryByName
+      parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/CategoryResponse"
+  "/api/books":
+    get:
+      tags:
+      - book-controller
+      operationId: getAllBooks
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/BookResponse"
+  "/api/books/{id}":
+    get:
+      tags:
+      - book-controller
+      operationId: getBook
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/BookResponse"
+  "/api/books/overdue/{rentalId}":
+    get:
+      tags:
+      - book-controller
+      operationId: isOverdue
+      parameters:
+      - name: rentalId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: boolean
   "/api/announcements/pinned":
     get:
       tags:
@@ -295,8 +755,94 @@ paths:
             "*/*":
               schema:
                 "$ref": "#/components/schemas/ApiResponseListAnnouncementSummary"
+  "/api/categories/{categoryId}":
+    delete:
+      tags:
+      - category-controller
+      operationId: deleteCategory
+      parameters:
+      - name: categoryId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
 components:
   schemas:
+    InquiryRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 100
+          minLength: 0
+        content:
+          type: string
+          minLength: 1
+        category:
+          type: string
+          minLength: 1
+        isPrivate:
+          type: boolean
+      required:
+      - category
+      - content
+      - title
+    InquiryResponse:
+      type: object
+      properties:
+        inquiryId:
+          type: integer
+          format: int64
+        title:
+          type: string
+        content:
+          type: string
+        category:
+          type: string
+        author:
+          type: string
+    EventRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: string
+          minLength: 1
+        location:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        author:
+          type: string
+      required:
+      - description
+      - title
+    EventResponse:
+      type: object
+      properties:
+        eventId:
+          type: integer
+          format: int64
+        title:
+          type: string
+        content:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
     AnnouncementRequest:
       type: object
       properties:
@@ -358,6 +904,27 @@ components:
         message:
           type: string
         data: {}
+    ReplyRequest:
+      type: object
+      properties:
+        content:
+          type: string
+          minLength: 1
+      required:
+      - content
+    ReplyResponse:
+      type: object
+      properties:
+        replyId:
+          type: integer
+          format: int64
+        content:
+          type: string
+        writer:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
     ApiResponseListFileResponse:
       type: object
       properties:
@@ -378,11 +945,60 @@ components:
           type: string
         fileUrl:
           type: string
-        fileSize:
+        size:
           type: integer
           format: int64
         contentType:
           type: string
+    CategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 20
+          minLength: 0
+        description:
+          type: string
+      required:
+      - name
+    CategoryResponse:
+      type: object
+      properties:
+        categoryId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+    RentRequest:
+      type: object
+      properties:
+        bookId:
+          type: integer
+          format: int64
+        email:
+          type: string
+    RentalResponse:
+      type: object
+      properties:
+        bookId:
+          type: integer
+          format: int64
+        title:
+          type: string
+        author:
+          type: string
+        category:
+          type: string
+        isAvailable:
+          type: boolean
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
     RegisterRequest:
       type: object
       properties:
@@ -445,6 +1061,24 @@ components:
       required:
       - email
       - password
+    BookResponse:
+      type: object
+      properties:
+        bookId:
+          type: integer
+          format: int64
+        title:
+          type: string
+        author:
+          type: string
+        category:
+          type: string
+        summary:
+          type: string
+        imageUrl:
+          type: string
+        isAvailable:
+          type: boolean
     Pageable:
       type: object
       properties:
@@ -517,3 +1151,9 @@ components:
           type: array
           items:
             "$ref": "#/components/schemas/AnnouncementSummary"
+  securitySchemes:
+    bearerAuth:
+      type: http
+      description: 로그인 후 발급받은 accessToken 입력 (Bearer 접두사 없이)
+      scheme: bearer
+      bearerFormat: JWT
